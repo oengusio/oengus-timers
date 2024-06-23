@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  oengus_timers:
+    container_name: oengus-timers
+    build:
+      context: .
+    environment:
+      - DATABASE_URL=postgresql://postgres@localhost:5432/oengus

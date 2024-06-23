@@ -58,8 +58,6 @@ func OpenSubmission(marathonIds []string) {
 	// language=PostgreSQL
 	sql := fmt.Sprintf("UPDATE marathon SET submits_open = True, can_edit_submissions = True WHERE id IN (%s)", marathonIdsParsed)
 
-	log.Println(sql)
-
 	db := GetConnection()
 	defer CloseConnection(db)
 
@@ -78,8 +76,6 @@ func CloseSubmission(marathonIds []string) {
 
 	// language=PostgreSQL
 	sql := fmt.Sprintf("UPDATE marathon SET submits_open = False WHERE id IN (%s)", marathonIdsParsed)
-
-	log.Println(sql)
 
 	db := GetConnection()
 	defer CloseConnection(db)

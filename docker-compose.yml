@@ -6,3 +6,4 @@ services:
       context: .
     environment:
       - DATABASE_URL=postgresql://postgres@localhost:5432/oengus
+      - TIMER_INTERVAL_MINUTES=5

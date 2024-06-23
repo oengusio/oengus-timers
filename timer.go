@@ -2,19 +2,28 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"oengus-timers/sql"
 	"oengus-timers/structs"
+	"oengus-timers/utils"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 )
 
 func StartTimers() {
-	// Run everyting now!
+	// Run everything now!
 	timerCallback()
 
+	timerInterval, err := strconv.Atoi(utils.GetEnv("TIMER_INTERVAL_MINUTES", "5"))
+
+	if err != nil {
+		panic(err)
+	}
+
 	// tick every 5 minutes to check for updates
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(time.Duration(timerInterval) * time.Minute)
 
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, os.Interrupt)
@@ -68,19 +77,27 @@ func extractIds(marathons []structs.Marathon) []string {
 }
 
 func openMarathonSubmissions(marathons []structs.Marathon) {
-	// Open submissions
-	// Enable edits for submissions
+	if len(marathons) == 0 {
+		log.Println("No submissions to open!")
+		return
+	}
 
 	marathonIds := extractIds(marathons)
+
+	log.Println("Opening submissions for", marathonIds)
 
 	sql.OpenSubmission(marathonIds)
 }
 
 func closeMarathonSubmissions(marathons []structs.Marathon) {
-	// Close submissions
-	// Keep edits enabled
+	if len(marathons) == 0 {
+		log.Println("No submissions to close!")
+		return
+	}
 
 	marathonIds := extractIds(marathons)
+
+	log.Println("Closing submissions for", marathonIds)
 
 	sql.CloseSubmission(marathonIds)
 }

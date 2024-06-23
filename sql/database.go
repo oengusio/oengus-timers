@@ -2,17 +2,20 @@ package sql
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/jackc/pgx/v4"
 	"log"
 	"oengus-timers/structs"
 	"os"
+	"strings"
 	"time"
 )
 
 func FindMarathonsToOpenSubmissions() ([]structs.Marathon, error) {
+	// Also check for end date here, we want to make sure that we do not open submissions when they need to be closed
 	// language=PostgreSQL
-	sql := buildMarathonQuery("submits_open = False AND NOW() >= submissions_start_date")
+	sql := buildMarathonQuery("submits_open = False AND NOW() >= submissions_start_date AND submissions_end_date >= NOW()")
 
 	db := GetConnection()
 	defer CloseConnection(db)
@@ -47,15 +50,56 @@ func FindMarathonsToCloseSubmissions() ([]structs.Marathon, error) {
 }
 
 func OpenSubmission(marathonIds []string) {
-	for _, marathonId := range marathonIds {
-		log.Println("Opening submissions for marathon", marathonId)
+	// Open submissions
+	// Enable edits for submissions
+
+	marathonIdsParsed := parseIdsToList(marathonIds)
+
+	// language=PostgreSQL
+	sql := fmt.Sprintf("UPDATE marathon SET submits_open = True, can_edit_submissions = True WHERE id IN (%s)", marathonIdsParsed)
+
+	log.Println(sql)
+
+	db := GetConnection()
+	defer CloseConnection(db)
+
+	_, err := db.Query(context.Background(), sql)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to open marathon submissions: %v\n", err)
 	}
 }
 
 func CloseSubmission(marathonIds []string) {
-	for _, marathonId := range marathonIds {
-		log.Println("Closing submissions for marathon", marathonId)
+	// Close submissions
+	// Keep edits enabled
+
+	marathonIdsParsed := parseIdsToList(marathonIds)
+
+	// language=PostgreSQL
+	sql := fmt.Sprintf("UPDATE marathon SET submits_open = False WHERE id IN (%s)", marathonIdsParsed)
+
+	log.Println(sql)
+
+	db := GetConnection()
+	defer CloseConnection(db)
+
+	_, err := db.Query(context.Background(), sql)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to open marathon submissions: %v\n", err)
 	}
+}
+
+func parseIdsToList(ids []string) string {
+	strs, _ := json.Marshal(ids)
+	idsParsed := strings.Trim(string(strs), "[]")
+
+	replacer := strings.NewReplacer("\"", "'")
+
+	idsParsed = replacer.Replace(idsParsed)
+
+	return idsParsed
 }
 
 func buildMarathonQuery(wherePart string) string {

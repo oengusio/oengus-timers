@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"log"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	log.Println("Starting timers.....")
+	StartTimers()
+	log.Println("Timers have finished!")
 }

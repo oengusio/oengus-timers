@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"log"
 	"oengus-timers/structs"
 	"os"

@@ -12,7 +12,34 @@ import (
 	"time"
 )
 
-func StartTimers() {
+func startClearDbTimer() {
+	fmt.Printf("Current day is %s\n", time.Now().Weekday().String())
+
+	if time.Now().Weekday() == time.Sunday {
+		sql.ClearDatabaseInfo()
+	}
+
+	ticker := time.NewTicker(time.Hour * 24)
+
+	sigint := make(chan os.Signal, 1)
+	signal.Notify(sigint, os.Interrupt)
+
+	func() {
+		for {
+			select {
+			case <-ticker.C:
+				if time.Now().Weekday() == time.Sunday {
+					sql.ClearDatabaseInfo()
+				}
+			case <-sigint:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+}
+
+func startOpenCloseTimer() {
 	// Run everything now!
 	timerCallback()
 
@@ -40,6 +67,16 @@ func StartTimers() {
 			}
 		}
 	}()
+}
+
+func StartTimers() {
+	doSandboxCleanup := utils.GetEnv("START_CLEANUP_SANDBOX_TIMER", "false") == "true"
+
+	if doSandboxCleanup {
+		go startClearDbTimer()
+	}
+
+	startOpenCloseTimer()
 }
 
 func timerCallback() {

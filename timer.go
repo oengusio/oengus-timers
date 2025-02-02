@@ -13,8 +13,6 @@ import (
 )
 
 func startClearDbTimer() {
-	fmt.Printf("Current day is %s\n", time.Now().Weekday().String())
-
 	if time.Now().Weekday() == time.Sunday {
 		sql.ClearDatabaseInfo()
 	}

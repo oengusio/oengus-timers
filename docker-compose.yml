@@ -6,4 +6,5 @@ services:
       context: .
     environment:
       - DATABASE_URL=postgresql://postgres@localhost:5432/oengus
+      - RABBIT_MQ_URI=amqp://duncte123:password@localhost:5672/
       - TIMER_INTERVAL_MINUTES=5

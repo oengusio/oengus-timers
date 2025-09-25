@@ -123,7 +123,7 @@ func openMarathonSubmissions(marathons []structs.Marathon) {
 	log.Println("Opening submissions for", marathonIds)
 
 	sql.OpenSubmission(marathonIds)
-	rabbitmq.SendSubmissionsOpenEvents(marathonIds)
+	rabbitmq.SendSubmissionsOpenEvents(marathons)
 }
 
 func closeMarathonSubmissions(marathons []structs.Marathon) {
@@ -137,5 +137,5 @@ func closeMarathonSubmissions(marathons []structs.Marathon) {
 	log.Println("Closing submissions for", marathonIds)
 
 	sql.CloseSubmission(marathonIds)
-	rabbitmq.SendSubmissionsClosedEvents(marathonIds)
+	rabbitmq.SendSubmissionsClosedEvents(marathons)
 }

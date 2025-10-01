@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"log"
 	"oengus-timers/structs"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func FindMarathonsToOpenSubmissions() ([]structs.Marathon, error) {
@@ -100,13 +101,14 @@ func parseIdsToList(ids []string) string {
 
 func buildMarathonQuery(wherePart string) string {
 	// language=PostgreSQL
-	return "SELECT id, name, start_date, end_date, submissions_start_date, submissions_end_date FROM marathon WHERE " + wherePart
+	return "SELECT id, name, webhook, start_date, end_date, submissions_start_date, submissions_end_date FROM marathon WHERE " + wherePart
 }
 
 func buildMarathonFromRows(rows pgx.Rows) []structs.Marathon {
 	var foundMarathons []structs.Marathon
 	var Id string
 	var Name string
+	var Webhook string
 	var StartDate time.Time
 	var EndDate time.Time
 	var SubmissionsStartDate time.Time
@@ -114,7 +116,7 @@ func buildMarathonFromRows(rows pgx.Rows) []structs.Marathon {
 
 	for rows.Next() {
 		// Scan is positional, not name based
-		err2 := rows.Scan(&Id, &Name, &StartDate, &EndDate, &SubmissionsStartDate, &SubmissionsEndDate)
+		err2 := rows.Scan(&Id, &Name, &Webhook, &StartDate, &EndDate, &SubmissionsStartDate, &SubmissionsEndDate)
 
 		if err2 != nil {
 			fmt.Println("Error scanning rows", err2)
@@ -124,6 +126,7 @@ func buildMarathonFromRows(rows pgx.Rows) []structs.Marathon {
 		parsed := structs.Marathon{
 			Id:                   Id,
 			Name:                 Name,
+			Webhook:              Webhook,
 			StartDate:            StartDate,
 			EndDate:              EndDate,
 			SubmissionsStartDate: SubmissionsStartDate,

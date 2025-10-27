@@ -108,7 +108,7 @@ func buildMarathonFromRows(rows pgx.Rows) []structs.Marathon {
 	var foundMarathons []structs.Marathon
 	var Id string
 	var Name string
-	var Webhook string
+	var Webhook *string
 	var StartDate time.Time
 	var EndDate time.Time
 	var SubmissionsStartDate time.Time
